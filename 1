@@ -1,0 +1,43 @@
+from itertools import combinations
+
+def negate_literal(literal):
+    if literal.startswith('~'):
+        return literal[1:]
+    else:
+        return f'~{literal}'
+
+def resolve(clause1, clause2):
+    new_clauses = set()
+    for literal1 in clause1:
+        for literal2 in clause2:
+            if literal1 == negate_literal(literal2):
+                resolvent = (clause1 - {literal1}) | (clause2 - {literal2})
+                new_clauses.add(frozenset(resolvent))
+    return new_clauses
+
+def resolution_algorithm(clauses):
+    new = set(clauses)
+    while True:
+        pairs = list(combinations(new, 2))
+        resolvents = set()
+        for (clause1, clause2) in pairs:
+            resolvents.update(resolve(clause1, clause2))
+        if frozenset() in resolvents:
+            return True
+        if resolvents.issubset(new):
+            return False
+        new = new.union(resolvents)
+
+clauses = [
+    frozenset(['~P', 'Q']),
+    frozenset(['P']),
+    frozenset(['~Q'])
+]
+
+result = resolution_algorithm(set(clauses))
+query = "P ∧ ¬Q"  # Example query
+
+if result:
+    print(f"The query '{query}' is PROVED.")
+else:
+    print(f"The query '{query}' is DISPROVED.")
