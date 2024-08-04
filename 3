@@ -1,1 +1,66 @@
+import heapq
 
+class Node:
+    def __init__(self, state, parent=None, cost=0, heuristic=0):
+        self.state = state
+        self.parent = parent
+        self.cost = cost
+        self.heuristic = heuristic
+    
+    def __lt__(self, other):
+        return (self.cost + self.heuristic) < (other.cost + other.heuristic)
+
+def astar_search(graph, start_state, goal_state, heuristic):
+    frontier = []
+    heapq.heappush(frontier, Node(start_state, None, 0, heuristic(start_state)))
+    explored = set()
+    
+    while frontier:
+        current_node = heapq.heappop(frontier)
+        current_state = current_node.state
+        
+        if current_state == goal_state:
+            path = []
+            while current_node.parent:
+                path.append(current_node.state)
+                current_node = current_node.parent
+            path.append(start_state)
+            path.reverse()
+            return path
+        
+        explored.add(current_state)
+        
+        for neighbor, cost in graph.get(current_state, []):
+            if neighbor not in explored:
+                new_cost = current_node.cost + cost
+                heapq.heappush(frontier, Node(neighbor, current_node, new_cost, heuristic(neighbor)))
+    
+    return None  # No path found
+
+def parse_graph_input():
+    graph = {}
+    num_edges = int(input("Enter the number of edges: "))
+    for _ in range(num_edges):
+        u, v, cost = input("Enter an edge (format: u v cost): ").split()
+        cost = int(cost)
+        if u not in graph:
+            graph[u] = []
+        graph[u].append((v, cost))
+    return graph
+
+if __name__ == "__main__":
+    print("Define the graph:")
+    graph = parse_graph_input()
+    
+    start_state = input("Enter the start state: ")
+    goal_state = input("Enter the goal state: ")
+
+    def heuristic(state):
+        return abs(ord(state) - ord(goal_state))  # Simple heuristic based on ASCII difference
+    
+    path = astar_search(graph, start_state, goal_state, heuristic)
+    
+    if path:
+        print("Path found:", " -> ".join(path))
+    else:
+        print("No path found.")
