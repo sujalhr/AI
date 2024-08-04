@@ -1,0 +1,49 @@
+import heapq
+
+def parse_graph():
+    graph = {}
+    edges = int(input("Enter the number of edges: "))
+    for _ in range(edges):
+        u, v, cost = input("Enter an edge (u v cost): ").split()
+        graph.setdefault(u, []).append((v, float(cost)))
+    return graph
+
+def heuristic(state):
+    return {'A': 5, 'B': 3, 'C': 2, 'D': 1, 'E': 2, 'G': 0}.get(state, float('inf'))
+
+def ao_star(graph, start, goal):
+    frontier = [(0, start, [])]
+    explored = set()
+
+    while frontier:
+        cost, state, path = heapq.heappop(frontier)
+
+        if state == goal:
+            return path + [state]
+
+        if state not in explored:
+            explored.add(state)
+            for neighbor, step_cost in graph.get(state, []):
+                new_cost = cost + step_cost
+                new_path = path + [state]
+                heapq.heappush(frontier, (new_cost + heuristic(neighbor), neighbor, new_path))
+
+    return None
+
+def main():
+    graph = parse_graph()
+    start = input("Enter the start state: ")
+    goal = input("Enter the goal state: ")
+
+    path = ao_star(graph, start, goal)
+
+    if path:
+        print("Path found:")
+        for i in range(len(path) - 1):
+            print(f"Action: Move to {path[i+1]}, State: {path[i]}")
+        print(f"Goal reached: {path[-1]}")
+    else:
+        print("No path found.")
+
+if __name__ == "__main__":
+    main()
