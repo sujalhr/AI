@@ -1,0 +1,58 @@
+from collections import deque
+
+def is_valid(state):
+    m_left, c_left, boat, m_right, c_right = state
+    return (m_left >= 0 and c_left >= 0 and m_right >= 0 and c_right >= 0 and
+            (m_left == 0 or m_left >= c_left) and
+            (m_right == 0 or m_right >= c_right))
+
+def get_successors(state):
+    m_left, c_left, boat, m_right, c_right = state
+    moves = [(1,0), (2,0), (0,1), (0,2), (1,1)]
+    successors = []
+    
+    for m, c in moves:
+        if boat == 1:
+            new_state = (m_left-m, c_left-c, 0, m_right+m, c_right+c)
+        else:
+            new_state = (m_left+m, c_left+c, 1, m_right-m, c_right-c)
+        if is_valid(new_state):
+            successors.append(new_state)
+    
+    return successors
+
+def solve():
+    start = (3, 3, 1, 0, 0)
+    goal = (0, 0, 0, 3, 3)
+    
+    queue = deque([(start, [])])
+    visited = set()
+    
+    while queue:
+        state, path = queue.popleft()
+        if state == goal:
+            return path + [state]
+        
+        if state not in visited:
+            visited.add(state)
+            for successor in get_successors(state):
+                queue.append((successor, path + [state]))
+    
+    return None
+
+def print_solution(solution):
+    if solution is None:
+        print("No solution found.")
+    else:
+        print("Solution found!")
+        for i, state in enumerate(solution):
+            m_left, c_left, boat, m_right, c_right = state
+            print(f"Step {i}:")
+            print(f"Left Bank: {m_left} missionaries, {c_left} cannibals")
+            print(f"Boat is {'on the left' if boat == 1 else 'on the right'} bank")
+            print(f"Right Bank: {m_right} missionaries, {c_right} cannibals")
+            print("------------")
+
+if __name__ == "__main__":
+    solution = solve()
+    print_solution(solution)
