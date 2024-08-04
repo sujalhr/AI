@@ -1,0 +1,35 @@
+def forward_chaining(rules, facts, goal):
+    while True:
+        new_fact = None
+        for condition, result in rules:
+            if result not in facts and all(c in facts for c in condition):
+                new_fact = result
+                break
+        if new_fact:
+            facts.add(new_fact)
+            if new_fact == goal:
+                return True
+        else:
+            return False
+
+def backward_chaining(rules, facts, goal):
+    if goal in facts:
+        return True
+    return any(all(backward_chaining(rules, facts, c) for c in condition)
+               for condition, result in rules if result == goal)
+
+rules = [
+    (['hair', 'live young'], 'mammal'),
+    (['feathers', 'fly'], 'bird')
+]
+
+tests = [
+    (set(['hair', 'live young']), 'mammal', "cat"),
+    (set(['feathers', 'fly']), 'bird', "pigeon")
+]
+
+# Run tests
+for facts, goal, animal in tests:
+    for method in [forward_chaining, backward_chaining]:
+        result = method(rules, facts, goal)
+        print(f"{method.__name__}: The {animal} is {'classified' if result else 'not classified'} as a {goal}.")
