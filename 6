@@ -1,0 +1,33 @@
+def nearest_neighbor_tsp(distances):
+    num_cities = len(distances)
+    tour = [0]  # Start from the first city
+    total_distance = 0
+
+    while len(tour) < num_cities:
+        current_city = tour[-1]
+        nearest_city = min(
+            [(distances[current_city][i], i) for i in range(num_cities) if i not in tour]
+        )
+        total_distance += nearest_city[0]
+        tour.append(nearest_city[1])
+
+    # Complete the tour by returning to the starting city
+    total_distance += distances[tour[-1]][tour[0]]
+    tour.append(0)
+
+    return tour, total_distance
+
+# Example usage:
+if __name__ == "__main__":
+    distances = [
+        [0, 4, 8, 9, 12],
+        [4, 0, 6, 8, 9],
+        [8, 6, 0, 10, 11],
+        [9, 8, 10, 0, 7],
+        [12, 9, 11, 7, 0]
+    ]
+    
+    tour, total_distance = nearest_neighbor_tsp(distances)
+    
+    print("Nearest Neighbor TSP Tour:", tour)
+    print("Total Distance:", total_distance)
